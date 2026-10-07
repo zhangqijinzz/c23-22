@@ -3,35 +3,54 @@ import { ImportModule } from "../components/ImportModule";
 import { InspectionModule } from "../components/InspectionModule";
 import { PreviewModule } from "../components/PreviewModule";
 import { TimelineModule } from "../components/TimelineModule";
+import { UndoDeleteToast } from "../components/UndoDeleteToast";
 import { VersionExportModule } from "../components/VersionExportModule";
+import { WorkspaceModule } from "../components/WorkspaceModule";
 import { createViewModel } from "../viewmodels/subtitleMeterViewModel";
 
 const tabs = [
-  { id: "import", number: "01", label: "导入项目", hint: "添加或恢复字幕" },
-  { id: "timeline", number: "02", label: "时间轴", hint: "查看并调整时间" },
-  { id: "inspection", number: "03", label: "问题检查", hint: "定位并修正问题" },
-  { id: "delivery", number: "04", label: "版本导出", hint: "保存快照与导出" },
+  { id: "workspace", number: "01", label: "工作区", hint: "管理本地全部项目" },
+  { id: "import", number: "02", label: "导入项目", hint: "添加字幕到工作区" },
+  { id: "timeline", number: "03", label: "时间轴", hint: "查看并调整时间" },
+  { id: "inspection", number: "04", label: "问题检查", hint: "定位并修正问题" },
+  { id: "delivery", number: "05", label: "版本导出", hint: "保存快照与导出" },
 ] as const;
 type TabId = (typeof tabs)[number]["id"];
 
 export function SubtitleMeter() {
   const vm = useMemo(createViewModel, []),
     state = useSyncExternalStore(vm.subscribe, vm.getSnapshot);
-  const [activeTab, setActiveTab] = useState<TabId>("import");
+  const [activeTab, setActiveTab] = useState<TabId>("workspace");
   useEffect(() => {
     void vm.restore();
   }, [vm]);
+  // 恢复出上次编辑的项目时直接进入编辑页
+  useEffect(() => {
+    if (state.activeId && activeTab === "workspace") setActiveTab("import");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.activeId]);
   const project = state.project;
   const selected =
     project?.cues.find((cue) => cue.id === state.selectedId) ??
     project?.cues[0];
 
+  const goWorkspace = () => {
+    vm.backToWorkspace();
+    setActiveTab("workspace");
+  };
+
+  const openProject = (id: string) => {
+    void vm.openProject(id).then(() => setActiveTab("import"));
+  };
+
   const loadDemo = () => {
     const content =
       "1\n00:00:01,000 --> 00:00:03,600\n字幕的节奏，决定了内容的呼吸。\n\n2\n00:00:03,750 --> 00:00:06,200\n让每一行，都有恰好的停留时间。\n\n3\n00:00:06,350 --> 00:00:08,900\n清晰、从容，不错过每一个重点。";
-    void vm.importFile(
-      new File([content], "subtitle-demo.srt", { type: "text/plain" }),
-    );
+    void vm
+      .importFile(
+        new File([content], "subtitle-demo.srt", { type: "text/plain" }),
+      )
+      .then(() => setActiveTab("import"));
   };
 
   const emptyTab = (title: string, description: string) => (
@@ -39,8 +58,8 @@ export function SubtitleMeter() {
       <span className="empty-tab-mark">S</span>
       <h2>{title}</h2>
       <p>{description}</p>
-      <button onClick={() => setActiveTab("import")}>
-        前往导入项目 <span>→</span>
+      <button onClick={goWorkspace}>
+        前往工作区选择项目 <span>→</span>
       </button>
     </section>
   );
@@ -72,14 +91,16 @@ export function SubtitleMeter() {
             让每一行字幕，<em>刚好被读完。</em>
           </h1>
           <p>
-            校对时间节奏、阅读压力与画面占用。所有文件只在你的浏览器中处理。
+            {project
+              ? `正在编辑「${project.name}」，所有修改自动保存到本机。`
+              : "校对时间节奏、阅读压力与画面占用。多个项目同时保存在本地工作区。"}
           </p>
         </div>
         <div className="hero-stats">
-          <span>当前项目</span>
+          <span>{project ? "当前项目" : "本地项目"}</span>
           <strong>
-            {project?.cues.length ?? "—"}
-            <small> 条字幕</small>
+            {project ? project.cues.length : state.projects.length}
+            <small> {project ? "条字幕" : "个项目"}</small>
           </strong>
         </div>
       </section>
@@ -111,6 +132,17 @@ export function SubtitleMeter() {
         role="tabpanel"
         aria-labelledby={`tab-${activeTab}`}
       >
+        {activeTab === "workspace" && (
+          <WorkspaceModule
+            vm={vm}
+            projects={state.projects}
+            activeId={state.activeId}
+            confirmingDeleteId={state.confirmingDeleteId}
+            notice={state.notice}
+            phase={state.phase}
+            onOpen={openProject}
+          />
+        )}
         {activeTab === "import" && (
           <div className="module-page import-page">
             <ImportModule
@@ -128,6 +160,18 @@ export function SubtitleMeter() {
                     {project.cues.length} 条字幕 ·{" "}
                     {project.format.toUpperCase()} · 已自动保存到此浏览器
                   </p>
+                  <div className="overview-actions">
+                    <button onClick={goWorkspace}>← 返回工作区</button>
+                    <button
+                      className="overview-delete"
+                      onClick={() => {
+                        vm.requestDelete(project.id);
+                        setActiveTab("workspace");
+                      }}
+                    >
+                      删除此项目
+                    </button>
+                  </div>
                 </div>
                 <div className="overview-count">
                   <strong>{state.issues.length}</strong>
@@ -139,15 +183,18 @@ export function SubtitleMeter() {
                 <div className="welcome-icon">S</div>
                 <div>
                   <h2>从一份字幕文件开始</h2>
-                  <p>SRT 与 WebVTT 均在本机解析，不会上传字幕内容。</p>
+                  <p>
+                    导入会在工作区中新建项目，不会覆盖已有项目。SRT 与 WebVTT
+                    均在本机解析，不会上传字幕内容。
+                  </p>
                   <button onClick={loadDemo}>
                     载入示例字幕 <span>→</span>
                   </button>
                 </div>
                 <div className="welcome-checks">
-                  <span>时间码与间隔</span>
-                  <span>阅读速度与行数</span>
-                  <span>安全区域预览</span>
+                  <span>多项目并存</span>
+                  <span>进度与快照独立</span>
+                  <span>删除可撤销</span>
                 </div>
               </section>
             )}
@@ -216,6 +263,7 @@ export function SubtitleMeter() {
             )
           ))}
       </section>
+      <UndoDeleteToast trash={state.trash} vm={vm} />
       <footer>
         <span>SUBTITLEMETER · 字幕节奏校对台</span>
         <span>DESIGNED FOR BETTER READING</span>

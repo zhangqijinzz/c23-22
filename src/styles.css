@@ -710,7 +710,7 @@ footer {
 }
 .module-tabs {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin: 0 0 14px;
   padding: 6px;
@@ -956,5 +956,321 @@ footer {
     margin: 4px 0 0 61px;
     padding: 0;
     border: 0;
+  }
+}
+
+/* ---------- 工作区 ---------- */
+.workspace-page {
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.85fr);
+  align-items: start;
+}
+.workspace-side {
+  display: grid;
+  gap: 14px;
+}
+.workspace-head {
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.workspace-total {
+  display: inline-grid;
+  place-items: center;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 5px;
+  margin-left: 6px;
+  border-radius: 9px;
+  background: #eef3e3;
+  color: #719148;
+  font:
+    10px "DM Mono",
+    monospace;
+}
+.workspace-filters {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.workspace-search {
+  width: 150px;
+  border: 1px solid #e6e7df;
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: #4a5044;
+  font-size: 10px;
+  outline: none;
+  background: #fcfcf9;
+}
+.workspace-search:focus {
+  border-color: #a9c778;
+}
+.status-filter {
+  display: inline-flex;
+  border: 1px solid #e6e7df;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #fcfcf9;
+}
+.status-filter button {
+  border: 0;
+  background: transparent;
+  padding: 7px 10px;
+  color: #8b8f83;
+  font-size: 10px;
+  cursor: pointer;
+}
+.status-filter button + button {
+  border-left: 1px solid #ecece5;
+}
+.status-filter button.active {
+  background: #eef3e3;
+  color: #5f7f38;
+}
+.project-rows {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+}
+.project-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #ecece5;
+  border-radius: 8px;
+  background: #fcfcf9;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.project-row:hover {
+  border-color: #d4dfc0;
+}
+.project-row.active {
+  border-color: #bcd493;
+  background: #f8fbf2;
+}
+.project-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+.project-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #353b30;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.project-current {
+  font-style: normal;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 8px;
+  background: #dce9c2;
+  color: #5f7f38;
+  font-size: 9px;
+  font-weight: 500;
+  vertical-align: 1px;
+}
+.project-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+  color: #9b9e94;
+  font:
+    9px "DM Mono",
+    monospace;
+}
+.project-meta .has-issues {
+  color: #bb8a44;
+}
+.project-meta .is-clean {
+  color: #7d9d54;
+}
+.project-time {
+  min-width: 64px;
+  text-align: right;
+  color: #b0b2a8;
+}
+.project-actions {
+  flex: 0 0 auto;
+  padding-right: 10px;
+}
+.delete-button {
+  border: 1px solid #ece4e1;
+  background: #fff;
+  border-radius: 5px;
+  padding: 5px 9px;
+  color: #b06a5e;
+  font-size: 9px;
+  cursor: pointer;
+}
+.delete-button:hover:not(:disabled) {
+  border-color: #d9b3ab;
+  background: #fdf7f5;
+}
+.delete-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.delete-confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 9px;
+  color: #9a756d;
+  white-space: nowrap;
+}
+.delete-confirm button {
+  border: 1px solid #e2d6d3;
+  background: #fff;
+  border-radius: 5px;
+  padding: 5px 9px;
+  font-size: 9px;
+  cursor: pointer;
+  color: #8c857e;
+}
+.delete-confirm .confirm-yes {
+  border-color: #d9a79f;
+  background: #c66a5c;
+  border-color: #c66a5c;
+  color: #fff;
+}
+.workspace-empty {
+  margin-top: 14px;
+  padding: 26px;
+  text-align: center;
+  border: 1px dashed #e0e1d8;
+  border-radius: 8px;
+  background: #fcfcf9;
+}
+.workspace-empty strong {
+  font-size: 12px;
+  color: #5a6150;
+}
+.workspace-empty p {
+  margin: 6px 0 10px;
+  color: #9a9d92;
+  font-size: 10px;
+}
+.workspace-empty button {
+  border: 1px solid #e3e5dd;
+  border-radius: 5px;
+  background: #fff;
+  color: #64813d;
+  padding: 6px 11px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.workspace-note {
+  margin: 12px 2px 0;
+  color: #a8aaa0;
+  font-size: 9px;
+}
+.workspace-tips p {
+  margin: 8px 0 0;
+  color: #8b8f82;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.overview-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 11px;
+}
+.overview-actions button {
+  border: 1px solid #e3e5dd;
+  border-radius: 5px;
+  background: #fff;
+  color: #64813d;
+  padding: 6px 10px;
+  font-size: 10px;
+  cursor: pointer;
+}
+.overview-actions .overview-delete {
+  color: #b06a5e;
+  border-color: #ece4e1;
+}
+.undo-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 28px;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px 12px 18px;
+  border-radius: 10px;
+  background: #2f362c;
+  color: #f3f5ee;
+  box-shadow: 0 8px 28px #20251a33;
+  font-size: 11px;
+}
+.undo-toast small {
+  display: block;
+  margin-top: 2px;
+  color: #aab39e;
+  font-size: 9px;
+}
+.undo-toast button {
+  border: 0;
+  border-radius: 6px;
+  background: #c8f169;
+  color: #2c3a1c;
+  font-weight: 600;
+  font-size: 10px;
+  padding: 8px 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.undo-toast button:hover {
+  background: #d4f883;
+}
+@media (max-width: 900px) {
+  .workspace-page {
+    grid-template-columns: 1fr;
+  }
+  .module-tabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .workspace-filters {
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 600px) {
+  .module-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .project-open {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .project-meta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .undo-toast {
+    width: calc(100% - 30px);
+    justify-content: space-between;
   }
 }
